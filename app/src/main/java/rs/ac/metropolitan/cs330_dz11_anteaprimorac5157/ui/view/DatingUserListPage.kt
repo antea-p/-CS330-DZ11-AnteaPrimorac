@@ -94,7 +94,7 @@ fun DatingUserCardView(datingUser: DatingUser, onSelected: (String) -> Unit) {
 
 @Preview
 @Composable
-fun ListStudentViewPreview() {
+fun DatingUserListPreview() {
     DatingUserListPage(
         datingUserList = MutableLiveData(
             listOf(

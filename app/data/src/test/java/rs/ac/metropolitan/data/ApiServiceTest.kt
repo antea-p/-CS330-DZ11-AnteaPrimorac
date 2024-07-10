@@ -9,13 +9,10 @@ import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import rs.ac.metropolitan.common.DatingUser
-import java.util.Date
 
 class ApiServiceTest {
     private lateinit var mockServer: MockWebServer
     private lateinit var apiService: ApiService
-
-
 
     @Before
     fun setup() {
@@ -23,63 +20,95 @@ class ApiServiceTest {
         apiService = Retrofit.Builder().baseUrl(mockServer.url("/"))
             .addConverterFactory(GsonConverterFactory.create()).build()
             .create(ApiService::class.java)
-
     }
 
     @Test
-    fun testGetStudents() = runBlocking{
-        //Given
+    fun testGetDatingUsers() = runBlocking {
+        // Given
         val jsonResponse = """
             [
-{"id":"1","fname":"Petar","lname":"Perić","avatar":"https://avatars.githubusercontent.com/u/6711895","email":"pera@yahoo.com","birthdate":"1970-04-23T22:10:44.931Z","sex":"male","studyYear":4,"startAt":"2019-01-24T15:08:00.272Z"},
-{"id":"2","fname":"Ivka","lname":"Miković","avatar":"https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/1063.jpg","email":"ivka@yahoo.com","birthdate":"1986-09-08T03:44:52.320Z","sex":"female","studyYear":4,"startAt":"2020-01-06T01:35:30.949Z"},
-{"id":"3","fname":"Jasmina","lname":"Andrić","avatar":"https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/73.jpg","email":"yasminka@yahoo.com","birthdate":"1960-04-26T10:17:27.151Z","sex":"female","studyYear":3,"startAt":"2021-09-22T07:29:10.166Z"},
-{"id":"4","fname":"Krsta","lname":"Velićković","avatar":"https://avatars.githubusercontent.com/u/56308322","email":"krst.vel@yahoo.com","birthdate":"1986-11-28T03:38:58.993Z","sex":"male","studyYear":1,"startAt":"2014-11-29T16:17:22.323Z"},
-{"id":"5","fname":"Toma","lname":"Petrović","avatar":"https://avatars.githubusercontent.com/u/17730130","email":"toma@yahoo.com","birthdate":"1983-11-16T02:00:57.517Z","sex":"male","studyYear":4,"startAt":"2016-02-23T19:48:27.069Z"}
-]
-                    """.trimIndent()
+              {
+                "id": "fe182abe-80a0-4d39-8a48-88da55de84e3",
+                "username": "Lafayette.Jaskolski53",
+                "avatar": "https://i.pravatar.cc/300?u=ac4ded46-1a20-4824-836f-2440b00ac50d",
+                "city": "Port Ethacester",
+                "country": "Samoa",
+                "sex": "Female",
+                "interestedIn": "Female",
+                "description": "Voluptatum iusto cursus veritas. Complectus amo apostolus crur cruciamentum aliquam. Defleo calcar taceo thema allatus."
+              },
+              {
+                "id": "b42414e1-0224-4610-b48f-59acdf9171ce",
+                "username": "Jamel15",
+                "avatar": "https://i.pravatar.cc/300?u=48eafe68-4263-405c-a0f5-b76408bb85e8",
+                "city": "Marvinburgh",
+                "country": "Comoros",
+                "sex": "Male",
+                "interestedIn": "Female",
+                "description": "Apud thermae facilis antiquus audeo terra super astrum conforto. Vulticulus ventus vix defungo occaecati celo pectus tondeo repudiandae. Sollicito desino patior caste tempora vitae blanditiis amissio cognomen conitor."
+              }
+            ]
+        """.trimIndent()
 
         mockServer.enqueue(
             MockResponse()
                 .setResponseCode(200)
                 .setBody(jsonResponse)
         )
-        //When
-        val result = apiService.getStudents()
 
-        //Then
+        // When
+        val result = apiService.getDatingUsers()
+
+        // Then
         assert(result.isNotEmpty())
-        assertEquals(result[0].id, "1")
-        assertEquals(result[0].fname, "Petar")
+        assertEquals(result[0].id, "fe182abe-80a0-4d39-8a48-88da55de84e3")
+        assertEquals(result[0].username, "Lafayette.Jaskolski53")
+        assertEquals(result[0].city, "Port Ethacester")
+        assertEquals(result[0].country, "Samoa")
+        assertEquals(result[0].sex, "Female")
+        assertEquals(result[0].interestedIn, "Female")
     }
 
     @Test
-    fun testAddStudent() = runBlocking {
-        //Given
-        val student = DatingUser(
-            id = "1",
-            fname = "Peter",
-            lname = "Petric",
-            avatar = "https://avatars.githubusercontent.com/u/6711895",
-            email = "pera@yahoo.com",
-            birthdate = Date(),
-            sex = "male",
-            studyYear = "4",
-            startAt = Date(),
+    fun testAddDatingUser() = runBlocking {
+        // Given
+        val datingUser = DatingUser(
+            id = "test-id",
+            username = "testuser",
+            avatar = "https://i.pravatar.cc/300?u=testuser",
+            city = "Test City",
+            country = "Test Country",
+            sex = "Male",
+            interestedIn = "Female",
+            description = "Test description"
         )
         val jsonResponse = """
-            {"id":"1","avatar":"https://www.gravatar.com/avatar/406ab6f051ff8548e3fe74d0e8d65113?d=identicon&s=+50","birthdate":"2004-03-17T01:00:00.000Z","email":"yesmine@gmail.com","fname":"Jasminka","lname":"Vladic","sex":"Female","startAt":"2024-03-26T01:00:00.000Z","studyYear":"1"}
-                    """.trimIndent()
-        //When
+            {
+              "id": "test-id",
+              "username": "testuser",
+              "avatar": "https://i.pravatar.cc/300?u=testuser",
+              "city": "Test City",
+              "country": "Test Country",
+              "sex": "Male",
+              "interestedIn": "Female",
+              "description": "Test description"
+            }
+        """.trimIndent()
+
+        // When
         mockServer.enqueue(
             MockResponse()
                 .setResponseCode(200)
                 .setBody(jsonResponse)
         )
-        val result = apiService.addStudent(student)
-        //Then
-        assert(result.id == "1")
-        assert(result.fname == "Jasminka")
-        assert(result.lname == "Vladic")
+        val result = apiService.addDatingUser(datingUser)
+
+        // Then
+        assertEquals(result.id, "test-id")
+        assertEquals(result.username, "testuser")
+        assertEquals(result.city, "Test City")
+        assertEquals(result.country, "Test Country")
+        assertEquals(result.sex, "Male")
+        assertEquals(result.interestedIn, "Female")
     }
 }

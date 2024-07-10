@@ -5,24 +5,26 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -37,8 +39,6 @@ import rs.ac.metropolitan.common.Common
 import rs.ac.metropolitan.common.DatingUser
 import java.util.UUID
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewDatingUserScreen(
     paddingValues: PaddingValues = PaddingValues(16.dp),
@@ -51,15 +51,12 @@ fun NewDatingUserScreen(
     var description by remember { mutableStateOf(TextFieldValue("")) }
     var selectedSex by rememberSaveable { mutableStateOf("") }
     var selectedInterestedIn by rememberSaveable { mutableStateOf("") }
-    val genders = listOf("Male", "Female")
 
     Card(
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp
-        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
         shape = MaterialTheme.shapes.large,
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(16.dp)
     ) {
         LazyColumn(
@@ -67,78 +64,23 @@ fun NewDatingUserScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.padding(paddingValues)
         ) {
+            item { Header(goBack) }
+            item { InputField(username, { username = it }, "Username", "Enter your username") }
+            item { InputField(city, { city = it }, "City", "Enter your city") }
+            item { InputField(country, { country = it }, "Country", "Enter your country") }
             item {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    IconButton(
-                        modifier = Modifier
-                            .background(Color.Transparent)
-                            .scale(1.5f),
-                        onClick = { goBack() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    Text(
-                        text = "New Dating User", style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-            }
-            item {
-                TextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text("Username") },
-                    placeholder = { Text("Enter your username") },
-                )
-            }
-            item {
-                TextField(
-                    value = city,
-                    onValueChange = { city = it },
-                    label = { Text("City") },
-                    placeholder = { Text("Enter your city") },
-                )
-            }
-            item {
-                TextField(
-                    value = country,
-                    onValueChange = { country = it },
-                    label = { Text("Country") },
-                    placeholder = { Text("Enter your country") },
-                )
-            }
-            item {
-                Text("Sex", style = MaterialTheme.typography.titleMedium)
-                SegmentedControl(
-                    items = genders,
-                    defaultSelectedItemIndex = 0,
-                ) { index ->
+                GenderSelection("Sex", selectedSex) { index ->
                     selectedSex = if (index == 0) "Male" else "Female"
                 }
             }
             item {
-                Text("Interested In", style = MaterialTheme.typography.titleMedium)
-                SegmentedControl(
-                    items = genders,
-                    defaultSelectedItemIndex = 0,
-                ) { index ->
+                GenderSelection("Interested In", selectedInterestedIn) { index ->
                     selectedInterestedIn = if (index == 0) "Male" else "Female"
                 }
             }
+            item { DescriptionField(description, { description = it }) }
             item {
-                TextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Description") },
-                    placeholder = { Text("Enter your description") },
-                    modifier = Modifier.height(100.dp)
-                )
-            }
-            item {
-                Button(onClick = {
+                SubmitButton {
                     submitDatingUser(
                         DatingUser(
                             id = UUID.randomUUID().toString(),
@@ -152,11 +94,85 @@ fun NewDatingUserScreen(
                         )
                     )
                     goBack()
-                }) {
-                    Text(text = "Submit")
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun Header(goBack: () -> Unit) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        IconButton(
+            modifier = Modifier
+                .background(Color.Transparent)
+                .scale(1.5f),
+            onClick = goBack
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = "Back",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        Text(
+            text = "New Dating User",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+private fun InputField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    label: String,
+    placeholder: String
+) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        placeholder = { Text(placeholder) },
+    )
+}
+
+@Composable
+private fun DescriptionField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit
+) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp),
+        maxLines = 5,
+        textStyle = MaterialTheme.typography.bodyLarge,
+    )
+}
+
+@Composable
+private fun GenderSelection(
+    title: String,
+    selectedGender: String,
+    onGenderSelected: (Int) -> Unit
+) {
+    val genders = listOf("Male", "Female")
+    Text(title, style = MaterialTheme.typography.titleMedium)
+    SegmentedControl(
+        items = genders,
+        defaultSelectedItemIndex = 0,
+        onItemSelection = onGenderSelected
+    )
+}
+
+@Composable
+private fun SubmitButton(onClick: () -> Unit) {
+    Button(onClick = onClick) {
+        Text(text = "Submit")
     }
 }
 

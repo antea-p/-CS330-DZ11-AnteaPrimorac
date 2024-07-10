@@ -5,10 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -24,8 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -37,120 +36,148 @@ fun DatingUserDetailScreen(
     goBack: () -> Unit,
     deleteDatingUser: () -> Unit
 ) {
-    DatingUserBasicData(datingUser = datingUser, goBack = goBack, delete = deleteDatingUser)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Card(
+            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
+            shape = MaterialTheme.shapes.large,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                TopBar(goBack, deleteDatingUser)
+                if (datingUser != null) {
+                    LazyColumn {
+                        item { UserInfo(datingUser) }
+                        item { UserInterestBox(datingUser.sex, datingUser.interestedIn) }
+                        item { UserDescription(datingUser.description) }
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
-fun DatingUserBasicData(datingUser: DatingUser?, goBack: () -> Unit, delete: () -> Unit) {
-    Card(
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp
-        ),
-        shape = MaterialTheme.shapes.large,
+fun TopBar(goBack: () -> Unit, delete: () -> Unit) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        IconButton(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .scale(1.5f),
+            onClick = goBack
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = "Back",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        Text(
+            text = "User details",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.align(Alignment.Center)
+        )
+        IconButton(
+            modifier = Modifier
+                .scale(1.5f)
+                .align(Alignment.CenterEnd),
+            onClick = delete
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Delete,
+                contentDescription = "Delete",
+                tint = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
+
+@Composable
+fun UserInfo(user: DatingUser) {
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp)
+            .padding(vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            IconButton(
-                modifier = Modifier
-                    .background(Color.Transparent)
-                    .scale(1.5f),
-                onClick = { goBack() }) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-            Text(text = "User details", style = MaterialTheme.typography.titleLarge, modifier = Modifier.align(Alignment.Center))
+        AsyncImage(
+            model = user.avatar,
+            contentDescription = null,
+            modifier = Modifier
+                .size(240.dp)
+                .clip(CircleShape)
+        )
+        Text(
+            text = user.username,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+        Text(
+            text = "Location: ${user.city}, ${user.country}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(4.dp)
+        )
+    }
+}
 
-            IconButton(
-                modifier = Modifier
-                    .scale(1.5f)
-                    .align(Alignment.BottomEnd),
-                onClick = { delete() }) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete",
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
-        }
-        datingUser?.let {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+@Composable
+fun UserInterestBox(sex: String, interestedIn: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .background(
+                color = MaterialTheme.colorScheme.tertiaryContainer,
+                shape = MaterialTheme.shapes.medium
+            )
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = sex,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onTertiaryContainer
+        )
+        Text(
+            text = "Interested in: $interestedIn",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onTertiaryContainer
+        )
+    }
+}
 
-            ) {
-                AsyncImage(
-                    model = it.avatar,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(240.dp)
-                        .clip(CircleShape)
-                )
-                Text(text = it.username, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 16.dp))
-                Text(
-                    text = "Location: ${it.city}, ${it.country}",
-                    color = Color.Gray,
-                    modifier = Modifier.padding(4.dp)
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 30.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = it.sex,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Text(
-                            text = "Interested in: ${it.interestedIn}",
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-                Card(
-                    elevation = CardDefaults.cardElevation(
-                        defaultElevation = 5.dp
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f))
-                        .padding(16.dp)
-                        .clip(MaterialTheme.shapes.small)
-                    ) {
-                        Text(
-                            text = "Description",
-                            color = MaterialTheme.colorScheme.onTertiary,
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        Text(
-                            text = it.description,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onTertiary,
-                        )
-                    }
-                }
-            }
+@Composable
+fun UserDescription(description: String) {
+    Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.tertiaryContainer)
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Description",
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
+            )
         }
     }
 }

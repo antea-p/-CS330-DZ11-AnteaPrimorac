@@ -1,5 +1,6 @@
 package rs.ac.metropolitan.cs330_dz11_anteaprimorac5157.ui
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -38,6 +39,7 @@ class AppViewModel : ViewModel() {
     }
 
     fun deleteDatingUser(id: String) {
+        Log.d("AppViewModel", "Deleting user...")
         GlobalScope.launch {
             repository.deleteDatingUser(id)
         }

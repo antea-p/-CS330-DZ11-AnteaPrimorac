@@ -11,6 +11,7 @@ class Repository {
 
     suspend fun loadDatingUsers() {
         val apiService = RetrofitHelper.getInstance().create(ApiService::class.java)
+
         val result = apiService.getDatingUsers()
         if (result != null)
             // Checking the results

@@ -9,14 +9,6 @@ import java.util.Date
 
 class Common {
     companion object{
-        private var formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
-        fun dateToString(date: Date): String {
-            val myDate: LocalDate = Instant.ofEpochMilli(date.getTime())
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate()
-            return formatter.format(myDate)
-        }
-
         fun generateAvatarImage(name: String): URL {
             val digest = java.security.MessageDigest.getInstance("MD5")
                 .digest(name.toByteArray())
